@@ -71,8 +71,17 @@ class userController {
                 })
                 return res.json({messages})
             }
-            if (length - offset - limit < 0) {
+            if (offset >= length) {
                 return res.json({messages: []})
+            }
+            if (length - offset - limit < 0) {
+                const messages = await Msg.findAll({
+                    where: {
+                        chatId: req.query.chatId
+                    },
+                    limit: length - offset
+                })
+                return res.json({messages})
             }
             const messages = await Msg.findAll({
                 where: {
