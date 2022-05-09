@@ -14,12 +14,6 @@ class userController {
             // Создание нового чата
             if (!resChat) {
                 resChat = await Chat.create({usersIn: req.body.users, messages: []})
-                req.body.users.forEach(user => {
-                    if (global.users[user]) {
-                        // Подключение пользователей к чату
-                        global.users[user].join(resChat.id)
-                    }
-                })
             }
             return res.json({[resChat.id]: resChat})
         } catch (e) {
@@ -34,12 +28,10 @@ class userController {
 
             const response = {}
             const userId = req.query.userId
-            chats.forEach(chat => {
+            await chats.forEach(chat => {
                 chat.usersIn.forEach(user => {
                     if (user == userId) {
                         response[chat.id] = chat
-                        global.socket.join(chat.id)
-                        global.users[userId] = global.socket
                     }
                 })
             })
@@ -53,7 +45,12 @@ class userController {
     async sendMessage(req, res) {
         try {
             const msg = await Msg.create({text: req.body.message, userId: req.body.userId, chatId: req.body.chatId})
-            global.io.to(req.body.chatId).emit('message', [{chatId: req.body.chatId, userId: req.body.userId, message: msg}])
+            const chat = await Chat.findAll({where: {id: msg.chatId}})
+            chat[0].usersIn.forEach(user => {
+                if (global.users[user]) {
+                    global.users[user].emit('message', [{chatId: req.body.chatId, userId: req.body.userId, message: msg}])
+                }
+            })
             return res.json({msg})
         } catch (e) {
             console.log(e)

@@ -54,6 +54,7 @@ class authController {
     async auth(req, res) {
         try {
             const token = generateJWT(req.user.id, req.user.email, req.user.username)
+            console.log('\x1b[47m\x1b[30m', 'SOCKET WITH ID: ' + global.socket.id + ' AUTH AS: ' + req.user.username, '\x1b[0m')
             global.users[req.user.id] = global.socket
             return res.json({token, user: req.user})
         } catch (e) {
