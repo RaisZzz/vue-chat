@@ -12,7 +12,7 @@ const io = require('socket.io')(server, {
     }
 })
 io.on('connection', socket => {
-    console.log('\x1b[47m\x1b[30m', 'SOCKET CONNECTED', '\x1b[0m')
+    console.log('\x1b[47m\x1b[30m', 'SOCKET ' + socket.id + ' CONNECTED', '\x1b[0m')
     global.socket = socket
 })
 global.io = io
