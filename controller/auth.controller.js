@@ -57,7 +57,7 @@ class authController {
 
             const date = new Date()
             const dateToday = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}:${date.getMilliseconds()}`
-            console.log('\x1b[47m\x1b[30m', 'USER WITH ID ' + req.user.id + ' AUTH AS: ' + req.user.username + ' AT ' + dateToday, '\x1b[0m')
+            console.log('\x1b[42m\x1b[30m', 'USER WITH ID ' + req.user.id + ' AUTH AS: ' + req.user.username + ' AT ' + dateToday, '\x1b[0m')
 
             return res.json({token, user: req.user})
         } catch (e) {
