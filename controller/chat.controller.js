@@ -58,6 +58,31 @@ class userController {
         }
     }
 
+    async deleteMessages(req, res, next) {
+        try {
+            if (!req.body.messages || !req.body.chatId) {
+                return next(ApiError.badRequest('chatId and messages required'))
+            }
+            await Msg.destroy({where: {
+                id: req.body.messages
+            }})
+            const chat = await Chat.findAll({where: {
+                id: req.body.chatId
+            }})
+            chat[0].usersIn.forEach(user => {
+                if (global.users[user]) {
+                    console.log(user)
+                    console.log(req.body.chatId)
+                    global.users[user].emit('messagesDeleted', req.body.messages)
+                }
+            })
+            return res.json({status: 200})
+        } catch (e) {
+            console.log(e)
+            res.status(400).json({message: 'Delete messages error'})
+        }
+    }
+
     async getMessages(req, res) {
         try {
             const limit = 30
