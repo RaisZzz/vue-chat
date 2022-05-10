@@ -71,8 +71,6 @@ class userController {
             }})
             chat[0].usersIn.forEach(user => {
                 if (global.users[user]) {
-                    console.log(user)
-                    console.log(req.body.chatId)
                     global.users[user].emit('messagesDeleted', req.body.messages)
                 }
             })

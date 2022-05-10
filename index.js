@@ -11,12 +11,14 @@ const io = require('socket.io')(server, {
         origin: '*',
     }
 })
-io.on('connection', socket => {
-    console.log('\x1b[47m\x1b[30m', 'SOCKET ' + socket.id + ' CONNECTED', '\x1b[0m')
-    global.socket = socket
-})
-global.io = io
+
 global.users = {}
+io.on('connection', socket => {
+    const date = new Date()
+    const dateToday = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}:${date.getMilliseconds()}`
+    console.log('\x1b[47m\x1b[30m', 'SOCKET ' + socket.id + ' CONNECTED AT USER ID ' + socket.handshake.query.userId + ' AT ' + dateToday, '\x1b[0m')
+    global.users[socket.handshake.query.userId] = socket
+})
 
 const PORT = 5000
 
