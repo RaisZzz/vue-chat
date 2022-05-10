@@ -27,7 +27,7 @@ class userController {
             const chats = await Chat.findAll()
 
             const response = {}
-            const userId = req.query.userId
+            const userId = req.user.id
             await chats.forEach(chat => {
                 chat.usersIn.forEach(user => {
                     if (user == userId) {
@@ -42,13 +42,22 @@ class userController {
         }
     }
 
-    async sendMessage(req, res) {
+    async sendMessage(req, res, next) {
         try {
-            const msg = await Msg.create({text: req.body.message, userId: req.body.userId, chatId: req.body.chatId})
-            const chat = await Chat.findAll({where: {id: msg.chatId}})
+            let access = false
+            const chat = await Chat.findAll({where: {id: req.body.chatId}})
+            chat[0].usersIn.forEach(user => {
+                if (user === req.user.id) {
+                    access = true
+                }
+            })
+            if (!access) {
+                return next(ApiError.badRequest('Нет доступа!'))
+            }
+            const msg = await Msg.create({text: req.body.message, userId: req.user.id, chatId: req.body.chatId})
             chat[0].usersIn.forEach(user => {
                 if (global.users[user]) {
-                    global.users[user].emit('message', [{chatId: req.body.chatId, userId: req.body.userId, message: msg}])
+                    global.users[user].emit('message', [{chatId: req.body.chatId, userId: req.user.id, message: msg}])
                 }
             })
             return res.json({msg})
@@ -60,14 +69,23 @@ class userController {
 
     async deleteMessages(req, res, next) {
         try {
+            const chat = await Chat.findAll({where: {
+                id: req.body.chatId
+            }})
+            let access = false
+            chat[0].usersIn.forEach(user => {
+                if (user === req.user.id) {
+                    access = true
+                }
+            })
+            if (!access) {
+                return next(ApiError.badRequest('Нет доступа!'))
+            }
             if (!req.body.messages || !req.body.chatId) {
                 return next(ApiError.badRequest('chatId and messages required'))
             }
             await Msg.destroy({where: {
                 id: req.body.messages
-            }})
-            const chat = await Chat.findAll({where: {
-                id: req.body.chatId
             }})
             chat[0].usersIn.forEach(user => {
                 if (global.users[user]) {
@@ -81,8 +99,18 @@ class userController {
         }
     }
 
-    async getMessages(req, res) {
+    async getMessages(req, res, next) {
         try {
+            let access = false
+            const chat = await Chat.findAll({where: {id: req.query.chatId}})
+            chat[0].usersIn.forEach(user => {
+                if (user === req.user.id) {
+                    access = true
+                }
+            })
+            if (!access) {
+                return next(ApiError.badRequest('Нет доступа!'))
+            }
             const limit = 30
             const offset = req.query.offset || 0
             const length = await Msg.count({where: {chatId: req.query.chatId}})

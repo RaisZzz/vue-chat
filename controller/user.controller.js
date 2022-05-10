@@ -20,6 +20,7 @@ class userController {
             const users = await User.findAll({
                 offset: offset,
                 limit: offset + 20,
+                attributes: ['username', 'email', 'id'],
                 where: {
                     [Op.or]: {
                         username: {
@@ -40,9 +41,12 @@ class userController {
 
     async getOne(req, res) {
         try {
-            const user = await User.findAll({where: {
-                id: req.query.userId
-            }})
+            const user = await User.findAll({
+                attributes: ['username', 'email', 'id'],
+                where: {
+                    id: req.query.userId
+                }
+            })
             return res.json({user})
         } catch (e) {
             console.log(e)
