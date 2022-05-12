@@ -10,9 +10,8 @@ const User = sequelize.define('user', {
 
 const Chat = sequelize.define('chat', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    usersIn: {type: DataTypes.ARRAY(DataTypes.INTEGER)},
-    messages: {type: DataTypes.ARRAY(DataTypes.JSON)},
-    title: {type: DataTypes.STRING}
+    title: {type: DataTypes.STRING, defaultValue: ''},
+    personal: {type: DataTypes.BOOLEAN, defaultValue: false}
 })
 
 const UserChat = sequelize.define('user_chat', {
@@ -25,10 +24,11 @@ const Msg = sequelize.define('msg', {
     userId: {type: DataTypes.INTEGER}
 })
 
-User.belongsToMany(Chat, {through: UserChat})
-Chat.belongsToMany(User, {through: UserChat})
+User.belongsToMany(Chat, {through: UserChat, as: "chats"})
+Chat.belongsToMany(User, {through: UserChat, as: "users"})
 
 Chat.hasMany(Msg)
+Msg.belongsTo(Chat)
 
 module.exports = {
     User,

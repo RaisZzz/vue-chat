@@ -23,7 +23,7 @@ class authController {
                 return next(ApiError.badRequest('Пользователь с такой почтой уже существует'))
             }
             const hashPassword = await bcrypt.hash(password, 5)
-            const user = await User.create({username, email, password: hashPassword, chatsId: []})
+            const user = await User.create({username, email, password: hashPassword})
             const token = generateJWT(user.id, email, username)
             return res.json({token})
         } catch (e) {

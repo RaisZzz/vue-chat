@@ -16,10 +16,11 @@ class userController {
     async getAll(req, res) {
         try {
             const search = req.query.search || ''
-            const offset = req.query.offset || 0
+            const offset = parseInt(req.query.offset) || 0
+            const limit = 20
             const users = await User.findAll({
                 offset: offset,
-                limit: offset + 20,
+                limit: limit,
                 attributes: ['username', 'email', 'id'],
                 where: {
                     [Op.or]: {
